@@ -1,61 +1,103 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# BlockDemo
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+## Requirements
 
-## About Laravel
+At a minimum you need to have:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* [Composer](https://getcomposer.org) >= 1.0
+* [VirtualBox](https://www.virtualbox.org/) >= 5.1
+* [Vagrant](https://www.vagrantup.com/) >= 1.8.4
+* [Node.js](https://nodejs.org) >= 8.0
+* [NPM](https://www.npmjs.com/) >= 5.0
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Local environment setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Clone this repository** into a working directory (e.g., `~/Code`)
+  ```shell
+  $ git clone git@TOUPDATE/site-tmp.git blockdemo
+  ```
 
-## Learning Laravel
+**Setup your Homestead.yaml file** (Homestead is a Vagrant based Ubuntu 16.04 virtual machine)
+  ```shell
+  # @ ~/Code/blockdemo
+  $ cp Homestead.example.yaml Homestead.yaml
+  # Update `folders.map` with your local absolute path to the blockdemo repository by replacing <FULL_PATH_TO_FOLDER>.
+  # Change the IP <LOCAL_VM_IP> at the top of that file if you have another vm running at the same IP
+  ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**Setup your hosts file**  
+  ```shell
+  $ sudo -- sh -c "echo '<LOCAL_VM_IP> blockdemo.test' >> /etc/hosts"
+  $ sudo -- sh -c "echo '<LOCAL_VM_IP> admin.blockdemo.test' >> /etc/hosts"
+  ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Setup your .env file**  
+  ```shell
+  # @ ~/Code/blockdemo
+  $ cp .env.example .env
+# Update DB_HOST=<LOCAL_VM_IP> to the ip address the VM is using.
+  ```
 
-## Laravel Sponsors
+**Install Composer dependencies**    
+  ```shell
+  # @ ~/Code/blockdemo
+  $ composer install
+  ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+**Fire up the virtual machine** (be patient!)  
+  ```shell
+  # @ ~/Code/blockdemo
+  $ vagrant up
+  ```
 
-### Premium Partners
+**SSH into the virtual machine**
+  ```shell
+  # @ ~/Code/blockdemo
+  $ vagrant ssh
+  ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[OP.GG](https://op.gg)**
+**Setup and add a superadmin user for yourself in the local CMS**  
+  ```shell
+  # @ /home/vagrant
+  $ cd blockdemo && php artisan key:generate && php artisan migrate && php artisan twill:superadmin
+  ```
+## Block Rules
+Each entity has a set of requirements for blocks used in their respective editor. The rules 
+are sequence based. Each step is either _required_ or _optional_. 
+### Example
+The following array is configured in the `Article.php` model. 
+- The first rule requires the first block to be a header.
+- The next rule allows for either an image block or a wysiwyg block. 
+Up to three of either block is allowed. As long as no more than three are used. 
+It's optional so zero blocks can be chosen for this slot.
+- The final rule requires the last block be a footer.  
+Note the rules are stated in a basic language structure.  
+_[must have/may have]_  _[number]_ of _[block]_ or _[block]_ or _[block]_ or ...
 
-## Contributing
+```php
+    public $blockEditorRules = [
+        'must have 1 of header',
+        'may have 3 of wysiwyg or image ',
+        'must have 1 of   footer',
+    ];
+```
+### Validate
+For the sake of the demo, the bottom of the `Article` form is a _Validate blocks_ 
+button.   
+This makes an ajax call to the backend and the response is `JSON`. This approach is just for
+demo's sake and a much more artful integration could be achieved leveraging Vue.    
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Example of a response  
 
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```json
+{
+    "valid": false,
+    "choice_step": 1,
+    "current_block": "image",
+    "possible_blocks": [
+        "wysiwyg",
+        "hero"
+    ]
+```
+The `choice_step` is an array pointer. This is referencing the _second_ choice in the block editor.
+A suggestion of a different choice is in the `possible_blocks` array.

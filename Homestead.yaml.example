@@ -1,0 +1,33 @@
+ip: <LOCAL_VM_IP>
+memory: 2048
+cpus: 2
+provider: virtualbox
+authorize: ~/.ssh/id_rsa.pub
+keys:
+    - ~/.ssh/id_rsa
+folders:
+    -
+        map: <FULL_PATH_TO_FOLDER>/blockdemo
+        to: /home/vagrant/code
+sites:
+    -
+        map: blockdemo.test
+        to: /home/vagrant/code/public
+    -
+        map: admin.blockdemo.test
+        to: /home/vagrant/code/public
+databases:
+    - homestead
+features:
+    -
+        mysql: false
+    -
+        mariadb: false
+    -
+        postgresql: false
+    -
+        ohmyzsh: false
+    -
+        webdriver: false
+name: blockdemo
+hostname: blockdemo

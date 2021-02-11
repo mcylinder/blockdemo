@@ -6,12 +6,15 @@
         </button>
     </div>
 </div>
+<p id="validate_mssg"></p>
 <p>
 <pre id="validate_results" class="f--tiny"></pre></p>
+
 @push('extra_js')
     <script>
         function validate_blocks() {
             document.getElementById("validate_results").innerHTML = 'checking..';
+            document.getElementById("validate_mssg").innerHTML = '';
             let activeFields = [];
             let currentBlocks = window.TWILL.STORE.form.blocks;
             currentBlocks.forEach(function (dom) {
@@ -23,8 +26,11 @@
             }))
                 .then((resp) => resp.json())
                 .then(function (data) {
-                    console.log(data);
                     document.getElementById("validate_results").innerHTML = JSON.stringify(data, null, 4);
+                    console.log(typeof(currentBlocks[data.choice_step]));
+                    if (null != currentBlocks[data.choice_step]) {
+                        document.getElementById("validate_mssg").innerHTML = 'Block #' + (data.choice_step + 1) + ', ' + currentBlocks[data.choice_step].title + ' is invalid.';
+                    }
                 });
         }
 

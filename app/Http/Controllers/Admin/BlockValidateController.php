@@ -20,6 +20,7 @@ class BlockValidateController extends Controller
         }, $fieldsRaw);
 
         $rule_set = [];
+        $required_count = 0;
         foreach ($rules as $rule) {
             $clean = trim($rule);
             $rule = preg_replace('!\s+!', ' ', $clean);
@@ -32,6 +33,7 @@ class BlockValidateController extends Controller
             list($type, $cnt, $fieldString) = explode('|', $rule);
 
             foreach (range(1, $cnt) as $iindx) {
+                $required_count = $type == 'req' ? $required_count + 1 : $required_count;
                 $rule_set[] = [
                     'type' => $type,
                     'fields' => explode(':', $fieldString),
@@ -42,13 +44,13 @@ class BlockValidateController extends Controller
         $choice_step = 0;
         $rule_step = 0;
         $current_req_fields = [];
+        $possible_fields = [];
 
-        $message_array = null;
+        $message_array = ['valid' => true];
         foreach ($rule_set as $indx) {
 
-            if (!isset($choices[$choice_step])) {
-                continue;
-            }
+      $choices[$choice_step] = isset($choices[$choice_step]) ? $choices[$choice_step] : '';
+
 
             $current_type = $rule_set[$rule_step]['type'];
             $current_fields = $rule_set[$rule_step]['fields'];
@@ -68,11 +70,15 @@ class BlockValidateController extends Controller
 
             if ($current_type == 'opt' && !in_array($current_block, $current_fields)) {
                 $rule_step++;
+                $possible_fields = array_merge($possible_fields, $current_fields);
                 continue;
+
             }
 
+            $current_fields = array_unique(array_merge($current_fields, $possible_fields));
+
             $message_array = [
-                'validateState' => false,
+                'valid' => false,
                 'choice_step' => $choice_step,
                 'current_block' => $current_block,
                 'possible_blocks' => $current_fields
@@ -81,8 +87,8 @@ class BlockValidateController extends Controller
             if ($message_array) {
                 break;
             }
-
-            return response()->json($message_array);
         }
+
+        return response()->json($message_array);
     }
 }
