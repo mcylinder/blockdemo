@@ -14,7 +14,7 @@ At a minimum you need to have:
 
 **Clone this repository** into a working directory (e.g., `~/Code`)
   ```shell
-  $ git clone git@TOUPDATE/site-tmp.git blockdemo
+  $ git clone https://github.com/mcylinder/blockdemo.git blockdemo
   ```
 
 **Setup your Homestead.yaml file** (Homestead is a Vagrant based Ubuntu 16.04 virtual machine)
